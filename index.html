@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>校内AR道案内プロトタイプ</title>
+  <!-- A-Frame と MindAR のライブラリ読み込み -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #info-ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-family: sans-serif;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 画面上の案内テキストUI -->
+  <div id="info-ui">カメラをマーカーにかざしてください</div>
+
+  <!-- ARシーンの設定 -->
+  <a-scene mindar-image="imageTargetSrc: ./targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    
+    <a-assets>
+      <!-- 3Dモデルの事前読み込み -->
+      <a-asset-item id="avatarModel" src="./character.glb"></a-asset-item>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- マーカー1（index: 0）をかざした時に表示されるAR要素 -->
+    <a-entity mindar-image-target="targetIndex: 0">
+      <!-- 3Dキャラクター表示＆アニメーション再生 -->
+      <a-gltf-model 
+        rotation="0 0 0" 
+        position="0 -0.5 0" 
+        scale="0.5 0.5 0.5" 
+        src="#avatarModel" 
+        animation-mixer>
+      </a-gltf-model>
+    </a-entity>
+
+  </a-scene>
+
+  <script>
+    // マーカーを検出した時のテキスト変更処理
+    const targetEl = document.querySelector('[mindar-image-target]');
+    const infoUi = document.getElementById('info-ui');
+
+    targetEl.addEventListener("targetFound", () => {
+      infoUi.textContent = "「生徒玄関です！階段に向かって真っ直ぐ進んでね」";
+    });
+
+    targetEl.addEventListener("targetLost", () => {
+      infoUi.textContent = "カメラをマーカーにかざしてください";
+    });
+  </script>
+</body>
+</html>
